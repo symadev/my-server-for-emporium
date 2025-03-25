@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -31,6 +31,22 @@ async function run() {
     const database = client.db("CoffeeDB");
     const coffeeCollection = database.collection("Coffee");
 
+
+
+    //get operation->find a multiple document
+    app.get('/coffee', async(req, res) => {
+      const cursor =coffeeCollection.find();
+     const result = await cursor.toArray();
+     res.send(result);
+    });
+    
+
+
+    
+    
+    
+    
+    
     // POST operation for adding coffee
     app.post('/coffee', async (req, res) => {
       console.log('POST /coffee request received');
@@ -44,6 +60,32 @@ async function run() {
         res.status(500).json({ message: "Error adding coffee", error: error.message });
       }
     });
+
+
+
+    //delete operation-->for specific item deletetion
+    app.delete('/coffee/:id', async (req, res) => {
+      const id= req.params.id;
+      const query = {_id:new ObjectId(id) }
+      const result = await coffeeCollection.deleteOne(query);
+    res.send (result);
+
+    })
+
+
+    //update operation for the  the coffee card
+    app.get('/coffee/:id', async (req, res) => {
+      const id= req.params.id;
+      const query = {_id:new ObjectId(id) }
+      const result = await coffeeCollection.findOne(query);
+    res.send (result);
+
+    })
+
+
+
+
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
